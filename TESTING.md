@@ -13,6 +13,7 @@ This project uses [Vitest](https://vitest.dev/) for unit testing, with [jsdom](h
 | `npm run test` | Run all tests once |
 | `npm run test:report` | Run all tests with coverage and HTML report |
 | `npm run test:watch` | Watch mode (re-runs on file changes) |
+| `npm run generate-report` | Generate a static sample report without running tests |
 
 ---
 
@@ -79,6 +80,27 @@ To view the report locally:
 ```sh
 npx vite preview --outDir test-report
 ```
+
+### Example Report
+
+The screenshot below shows what the report looks like (generated via `npm run generate-report`):
+
+![Sample Test Report](docs/test-report-screenshot.png)
+
+---
+
+## Sample Report Script
+
+`scripts/generate-sample-report.js` creates a standalone HTML file at
+`reports/sample-report.html` without running the real test suite.
+Use it to preview the report layout or share a snapshot with stakeholders.
+
+```sh
+npm run generate-report
+# → reports/sample-report.html
+```
+
+The `reports/` folder is listed in `.gitignore` and is never committed.
 
 ---
 

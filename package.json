@@ -10,6 +10,7 @@
     "test": "vitest run",
     "test:report": "vitest run --coverage",
     "test:watch": "vitest",
+    "generate-report": "node scripts/generate-sample-report.js",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts"
   },
   "dependencies": {

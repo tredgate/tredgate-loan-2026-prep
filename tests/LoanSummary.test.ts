@@ -3,6 +3,13 @@ import { mount } from '@vue/test-utils'
 import LoanSummary from '../src/components/LoanSummary.vue'
 import type { LoanApplication } from '../src/types/loan'
 
+/**
+ * Helper that creates an array of `LoanApplication` objects from partial
+ * overrides, filling in sensible defaults for every other field.
+ *
+ * @param overrides - Partial loan objects; each entry becomes one loan.
+ * @returns Array of fully-populated `LoanApplication` objects.
+ */
 function makeLoans(overrides: Partial<LoanApplication>[] = []): LoanApplication[] {
   return overrides.map((o, i) => ({
     id: `${i}`,
@@ -17,6 +24,11 @@ function makeLoans(overrides: Partial<LoanApplication>[] = []): LoanApplication[
 }
 
 describe('LoanSummary', () => {
+  /**
+   * When no loans are provided every counter must display `0` and the total
+   * approved amount must be `$0` — the component must never show undefined or
+   * blank values.
+   */
   it('shows zeros when no loans', () => {
     const wrapper = mount(LoanSummary, { props: { loans: [] } })
     const values = wrapper.findAll('.stat-value').map(v => v.text())
@@ -27,6 +39,11 @@ describe('LoanSummary', () => {
     expect(values[4]).toBe('$0')  // total approved amount
   })
 
+  /**
+   * Given a mixed set of loans the summary must show the correct count for
+   * each status bucket and the correct total approved amount.
+   * Example: 1 pending, 2 approved ($5k + $3k = $8k), 1 rejected.
+   */
   it('counts loans by status', () => {
     const loans = makeLoans([
       { status: 'pending' },
@@ -43,6 +60,10 @@ describe('LoanSummary', () => {
     expect(values[4]).toContain('8,000') // total approved = 8000
   })
 
+  /**
+   * The total approved amount must be the sum of `amount` across all approved
+   * loans only. Here two approved loans add up to $100,000.
+   */
   it('calculates total approved amount correctly', () => {
     const loans = makeLoans([
       { status: 'approved', amount: 25000 },
@@ -54,6 +75,10 @@ describe('LoanSummary', () => {
     expect(amountValue).toContain('100,000')
   })
 
+  /**
+   * Pending and rejected loan amounts must be excluded from the total.
+   * Even a large rejected amount ($99,999) must not appear in the approved total.
+   */
   it('only includes approved amounts in total', () => {
     const loans = makeLoans([
       { status: 'rejected', amount: 99999 },
@@ -66,8 +91,13 @@ describe('LoanSummary', () => {
     expect(amountValue).not.toContain('99,999')
   })
 
+  /**
+   * The component must always render exactly five stat cards regardless of
+   * the loan data: Total, Pending, Approved, Rejected, and Total Approved.
+   */
   it('renders five stat cards', () => {
     const wrapper = mount(LoanSummary, { props: { loans: [] } })
     expect(wrapper.findAll('.stat-card')).toHaveLength(5)
   })
 })
+
