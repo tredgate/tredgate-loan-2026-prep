@@ -3,12 +3,12 @@
 :root {
   --primary-color: #2E3192;
   --primary-hover: #1f2270;
-  --background-color: #336;
+  --background-color: #f0f2f5;
   --card-background: #ffffff;
   --text-color: #333333;
   --text-secondary: #666666;
-  --header-text-color: #ffffff;
-  --tagline-color: rgba(255, 255, 255, 0.8);
+  --header-text-color: #2E3192;
+  --tagline-color: #666666;
   --border-color: #e0e0e0;
   --success-color: #28a745;
   --danger-color: #dc3545;
