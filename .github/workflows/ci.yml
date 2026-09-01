@@ -29,8 +29,33 @@ jobs:
       - name: Run linter
         run: npm run lint
 
-      - name: Run tests
-        run: npm run test
+      - name: Run tests with HTML report
+        run: npm run test:report 2>&1 | tee /tmp/test-output.txt; exit ${PIPESTATUS[0]}
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: test-report/
+          retention-days: 30
+
+      - name: Write test summary
+        if: always()
+        run: |
+          echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| | |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          PASSED=$(grep -oP '\d+(?= passed)' /tmp/test-output.txt | tail -1 || echo "—")
+          FAILED=$(grep -oP '\d+(?= failed)' /tmp/test-output.txt | tail -1 || echo "0")
+          FILES=$(grep -oP '\d+(?= passed \()' /tmp/test-output.txt | tail -1 || echo "—")
+          echo "| ✅ Passed | $PASSED |" >> $GITHUB_STEP_SUMMARY
+          echo "| ❌ Failed | $FAILED |" >> $GITHUB_STEP_SUMMARY
+          echo "| 📁 Test Files | $FILES |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> HTML report is available as a workflow artifact." >> $GITHUB_STEP_SUMMARY
 
       - name: Build
         run: npm run build
+
