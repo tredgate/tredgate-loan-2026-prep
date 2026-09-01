@@ -5,6 +5,10 @@ export default defineConfig({
   plugins: [vue()],
   test: {
     environment: 'jsdom',
-    globals: true
+    globals: true,
+    reporters: ['verbose', 'html'],
+    outputFile: {
+      html: './test-report/index.html'
+    }
   }
 })

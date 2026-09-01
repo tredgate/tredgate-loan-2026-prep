@@ -29,8 +29,42 @@ jobs:
       - name: Run linter
         run: npm run lint
 
-      - name: Run tests
-        run: npm run test
+      - name: Run tests with HTML report
+        run: npm run test:report
+
+      - name: Upload HTML test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: test-report/
+          retention-days: 30
+
+      - name: Write test summary
+        if: always()
+        run: |
+          echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          RESULT=$(npm test -- --reporter=json 2>/dev/null | tail -1 | python3 -c "
+          import sys, json
+          try:
+            data = json.load(sys.stdin)
+            passed = data.get('numPassedTests', 0)
+            failed = data.get('numFailedTests', 0)
+            total = data.get('numTotalTests', 0)
+            files = data.get('numPassedTestSuites', 0)
+            print(f'| ✅ Passed | {passed} |')
+            print(f'| ❌ Failed | {failed} |')
+            print(f'| 📊 Total  | {total} |')
+            print(f'| 📁 Files  | {files} |')
+          except Exception:
+            print('| Status | See logs |')
+          " 2>/dev/null || echo "| Status | See logs above |")
+          echo "$RESULT" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📄 Full HTML report is available in the **test-report** artifact." >> $GITHUB_STEP_SUMMARY
 
       - name: Build
         run: npm run build
